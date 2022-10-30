@@ -56,83 +56,175 @@ const posts = [
   }
 ];
 
+
+
+// -------------------
+
+
 let container = document.querySelector('#container')
+container.innerHTML = '';
+
+const userLikes = [1, 3, 4]
 
 
-
-let counter = 0
-
-reverse()
-
-posts.forEach((post) => {
- let all = ` 
-
-      <div class="post">
-          <div class="post__header">
-              <div class="post-meta">                    
-                  <div class="post-meta__icon">
-                      <img class="profile-pic" src="${post.author.image}" alt="Phil Mangione">                    
-                  </div>
-                  <div class="post-meta__data">
-                      <div class="post-meta__author">${post.author.name}</div>
-                      <div class="post-meta__time">${post.created}</div>
-                  </div>                    
-              </div>
-          </div>
-          <div class="post__text">${post.content}</div>
-          <div class="post__image">
-              <img src="${post.media}" alt="">
-          </div>
-          <div class="post__footer">
-              <div class="likes js-likes">
-                  <div class="likes__cta">
-                      <a class="like-button  js-like-button" href="#" data-postid="${post.id}">
-                          <i class="like-button__icon fas fa-thumbs-up" aria-hidden="true"></i>
-                          <span class="like-button__label">Mi Piace</span>
-                      </a>
-                  </div>
-                  <div class="likes__counter">
-                      Piace a <b id="like-counter-1" class="js-likes-counter">${post.likes}</b> persone
-                  </div>
-              </div> 
-          </div>            
-      </div>
- `
-
- container.innerHTML += all
+// -------------------
 
 
-});
+posts.forEach(post =>{
 
-function reverse(){
-  
-  posts.forEach((date) => {
-  
-    date.created = date.created.split("-").reverse().join("-");
-  
+container.innerHTML += createall(post);
 
-  })
+})
+
+
+// -------------------
+
+
+function createall(post){
+
+let {id, author,content,media,likes,created} = post; 
+
+return ` 
+
+<div class="post">
+<div class="post__header"> 
+    <div class="post-meta">    
+
+        <div class="post-meta__icon">
+        
+        ${author.image ? profilePh(author) : profileDef(author) }
+        
+        </div>
+
+        <div class="post-meta__data">
+            <div class="post-meta__author">${author.name}</div>
+            <div class="post-meta__time">${formatDate(created)}</div>
+        </div>                    
+    </div>
+</div>
+<div class="post__text">${content}</div>
+<div class="post__image">
+    <img src="${media}" alt="">
+</div>
+<div class="post__footer">
+    <div class="likes js-likes">
+        <div class="likes__cta">
+            <a class="like-button  js-like-button ${isPostLiked(id) ? 'like-button--liked' : ''}  " href="#" data-postid="${id}">
+                <i class="like-button__icon fas fa-thumbs-up" aria-hidden="true"></i>
+                <span class="like-button__label">Mi Piace</span>
+            </a>
+        </div>
+        <div class="likes__counter">
+            Piace a <b id="like-counter-${id }" class="js-likes-counter">${likes}</b> persone
+        </div>
+    </div> 
+</div>  
+</div> 
+
+`
 }
 
-let likeArray = []
-
-console.log(likeArray);
-
-let buttons = document.querySelectorAll('.like-button');
-let likeCa = document.querySelectorAll('#like-counter-1')
+// -------------------
 
 
-buttons.forEach(button => {
-  button.addEventListener('click', function(){
-    console.log(button.getAttribute('data-postid'));
+const likesButton = document.querySelectorAll('.like-button');
 
-   likeArray.push(button.getAttribute('data-postid'))
-   
-    button.classList.add('like-button--liked')
-
-    console.log(likeCa);
+// -------------------
 
 
+likesButton.forEach(likesButton =>{
 
-  });
-});
+    likesButton.addEventListener('click', function(event){
+
+    event.preventDefault();
+
+    const postId = this.getAttribute('data-postid')
+
+    const counterDisp = document.getElementById('like-counter-'+ postId)
+
+    let likes = parseInt(counterDisp.innerText);
+
+    console.log(likes);
+
+    if(this.classList.contains('like-button--liked')){
+
+    this.classList.remove('like-button--liked')
+
+    counterDisp.innerText = --likes;
+
+    }else{
+        this.classList.add('like-button--liked')
+
+         counterDisp.innerText = ++likes;
+
+    }
+  
+    console.log(postId);
+
+    const likedPost = posts.filter(post => post.id == postId)
+
+    likedPost[0].likes = likes;
+
+    console.log(posts);
+
+    })
+
+})
+// -------------------
+
+
+function formatDate(date){
+
+return date.split('-').reverse().join('-')
+
+}
+
+// -------------------
+
+
+
+function isPostLiked(id){
+
+   return userLikes.includes(id) 
+}
+
+// -------------------
+
+
+function profilePh(author){
+
+const {image,name} = author;
+return ` <img class="profile-pic" src="${image}" alt="${name}"> `
+
+}
+
+
+// -------------------
+
+
+
+function profileDef(author){
+
+const {name} = author;
+
+let initials = '';
+
+const nameParts = name.split(' ');
+
+nameParts.forEach( part => {
+
+ initials += part[0];
+
+})
+
+return`
+
+<div class='profile-pic-default'>
+
+<span>${initials}</span>
+
+</div>
+`
+}
+
+// -------------------
